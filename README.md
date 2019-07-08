@@ -4,7 +4,7 @@ This project contains a variety of runbooks to autoscale various resources verti
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
 ## Getting Started
-Use the ***Deploy to Azure*** button above to quickly deploy these scripts to your Azure Subscription. The deployment will take a few minutes. The longest piece is the import of dependent Azure Az modules in the runbook gallery. It will automattically add several "Tutorial" runbooks, even though they are excluded from the ARM template.
+Use the ***Deploy to Azure*** button above to quickly deploy these scripts to your Azure Subscription. The deployment will take a few minutes. The longest piece is the import of dependent Azure Az modules in the runbook gallery. The deployment will also automatically add several "Tutorial" runbooks, even though they are excluded from the ARM template. Feel free to delete them post-deployment (AzureAutomationTutorial, AzureAutomationTutorialPython2, AzureAutomationTutorialScript).
 
 Once deployed, you will see the following resources:
 - \<Your Resource Group\>/\<Your Automation Account\>/ScaleAppServicePlansDown
