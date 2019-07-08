@@ -9,6 +9,38 @@ param (
     [string] $appServicePlanName
 )
 
+function Custom-Get-AzAutomationAccount{
+    $acc = Get-AzAutomationAccount
+
+    if($acc.AutomationAccountName.Length -gt 1){
+        Write-Output "Found multiple Run-As Accounts. Resolving to current..."
+
+        for($i = 0; $i -lt $acc.AutomationAccountName.Length; $i++){
+            $contextAutomationAccountName = $acc.AutomationAccountName[$i] 
+            $contextResourceGroupname = $acc.ResourceGroupName[$i]
+
+            $scalingAccount = Get-AzAutomationVariable -Name "ScalingAccount" `
+                -AutomationAccountName $contextAutomationAccountName `
+                -ResourceGroupName $contextResourceGroupname `
+                -ErrorAction SilentlyContinue
+            
+            if($scalingAccount -ne $null){
+                if($scalingAccount.Value -eq $contextAutomationAccountName){
+                    $acc = Get-AzAutomationAccount -ResourceGroupName $contextResourceGroupname `
+                                -Name $contextAutomationAccountName
+
+                    Write-Output "Resolved Run-As Account to $contextAutomationAccountName"
+                    break
+                }
+            }
+        }
+
+        Write-Output "Finished resolving proper Run-As Account"
+    }
+
+    return $acc
+}
+
 function CreateIfNotExistsAutomationVariable{
     param(
         [Parameter(Mandatory=$true)] 
@@ -27,17 +59,20 @@ function CreateIfNotExistsAutomationVariable{
         [object] $value
     )
 
+    $automationAccountName = $automationAccount.AutomationAccountName
+    $automationResourceGroupName = $automationAccount.ResourceGroupName
+
     $variable = Get-AzAutomationVariable -Name "$targetResourceGroupname.$appServicePlanName.$name" `
-        -AutomationAccountName $automationAccount.AutomationAccountName `
-        -ResourceGroupName $automationAccount.ResourceGroupName `
+        -AutomationAccountName $automationAccountName `
+        -ResourceGroupName $automationResourceGroupName `
         -ErrorAction SilentlyContinue
 
     if($variable -eq $null){
         Write-Output "--- --- --- --- --- Creating new variable '$targetResourceGroupname.$appServicePlanName.$name' with value '$value'..."
 
         New-AzAutomationVariable -Name "$targetResourceGroupname.$appServicePlanName.$name" `
-            -AutomationAccountName $automationAccount.AutomationAccountName `
-            -ResourceGroupName $automationAccount.ResourceGroupName `
+            -AutomationAccountName $automationAccountName `
+            -ResourceGroupName $automationResourceGroupName `
             -Value $value `
             -Encrypted $false `
             | out-null
@@ -51,10 +86,11 @@ function CreateIfNotExistsAutomationVariable{
 
 Write-Output "Getting Automation Run-As Account with name '$automationConnName'"
 $conn = Get-AutomationConnection -Name $automationConnName
+
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
 Write-Output "Connected with Run-As Account '$automationConnName'"
 
-$account = Get-AzAutomationAccount
+$account = Custom-Get-AzAutomationAccount
 
 $resourceGroupNames = @()
 
@@ -144,7 +180,7 @@ foreach($rgName in $resourceGroupNames){
                 $modifiedWebApp.SiteConfig.AlwaysOn = $false
                 Set-AzWebApp -WebApp $modifiedWebApp | out-null
                 
-                Write-Output "--- --- --- --- Finished modifiying App Service '$webAppName'..."
+                Write-Output "--- --- --- --- Finished modifiying App Service '$webAppName'"
             }
         }
 

@@ -9,6 +9,38 @@ param (
     [string] $appServicePlanName
 )
 
+function Custom-Get-AzAutomationAccount{
+    $acc = Get-AzAutomationAccount
+
+    if($acc.AutomationAccountName.Length -gt 1){
+        Write-Output "Found multiple Run-As Accounts. Resolving to current..."
+
+        for($i = 0; $i -lt $acc.AutomationAccountName.Length; $i++){
+            $contextAutomationAccountName = $acc.AutomationAccountName[$i] 
+            $contextResourceGroupname = $acc.ResourceGroupName[$i]
+
+            $scalingAccount = Get-AzAutomationVariable -Name "ScalingAccount" `
+                -AutomationAccountName $contextAutomationAccountName `
+                -ResourceGroupName $contextResourceGroupname `
+                -ErrorAction SilentlyContinue
+            
+            if($scalingAccount -ne $null){
+                if($scalingAccount.Value -eq $contextAutomationAccountName){
+                    $acc = Get-AzAutomationAccount -ResourceGroupName $contextResourceGroupname `
+                                -Name $contextAutomationAccountName
+
+                    Write-Output "Resolved Run-As Account to $contextAutomationAccountName"
+                    break
+                }
+            }
+        }
+
+        Write-Output "Finished resolving proper Run-As Account"
+    }
+
+    return $acc
+}
+
 function GetAutomationVariable{
     param(
         [Parameter(Mandatory=$true)] 
@@ -37,7 +69,7 @@ $conn = Get-AutomationConnection -Name $automationConnName
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
 Write-Output "Connected with Run-As Account '$automationConnName'"
 
-$account = Get-AzAutomationAccount
+$account = Custom-Get-AzAutomationAccount
 
 $resourceGroupNames = @()
 
