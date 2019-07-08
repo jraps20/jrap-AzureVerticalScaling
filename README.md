@@ -7,8 +7,8 @@ This project contains a variety of runbooks to autoscale various resources verti
 Use the ***Deploy to Azure*** button above to quickly deploy these scripts to your Azure Subscription. The deployment will take a few minutes. The longest piece is the import of dependent Azure Az modules in the runbook gallery. It will automattically add several "Tutorial" runbooks, even though they are excluded from the ARM template.
 
 Once deployed, you will see the following resources:
-- <Your Resource Group>/<Your Automation Account>/ScaleAppServicePlansDown
-- <Your Resource Group>/<Your Automation Account>/ScaleAppServicePlansUp
+- \<Your Resource Group\>/\<Your Automation Account\>/ScaleAppServicePlansDown
+- \<Your Resource Group\>/\<Your Automation Account\>/ScaleAppServicePlansUp
 
 Next, add a Run As account...
 
@@ -16,7 +16,7 @@ Next, add a Run As account...
 
 (Note: It is not possible to create the Run As Account with an ARM template: https://feedback.azure.com/forums/246290-automation/suggestions/18864241-creation-of-run-as-accounts-using-arm-template)
 
-1. Select your <Your Automation Account> resource
+1. Select your \<Your Automation Account\> resource
 2. Select Account Settings > Run as accounts from the left hand navigation
 3. Select "Create" on the "Azure Run As Account"
 4. Create
@@ -28,7 +28,7 @@ Next, add a schedule to your runbooks to reduce your expenses when you're not us
 
 **Adding a Schedule**
 
-1. Select your <Your Automation Account> resource
+1. Select your \<Your Automation Account\> resource
 2. Select Shared Resources > Schedules from the left hand navigation
 3. Select "+ Add a schedule"
     1. Enter name, e.g. "Scale Down at night"
@@ -41,7 +41,7 @@ Next, add a schedule to your runbooks to reduce your expenses when you're not us
 	5. Set expiration: No
 	6. Create
 4. Once the deployment of your schedule is complete, select your runbook(s)
-    1. <Your Resource Group>/<Your Automation Account>/ScaleAppServicePlansDown, for example
+    1. \<Your Resource Group\>/\<Your Automation Account\>/ScaleAppServicePlansDown, for example
 5. Select Link to schedule
     1. In the new blade that opens, Link a schedule to your runbook
 	    1. Select your "Scale Down at night" schedule, for example
@@ -59,7 +59,7 @@ _If you set the ScaleAppServicePlansDown to run every M-F at 5pm, you should set
 Parameter  | Usage
 ------------- | -------------
 resourceGroupName  | If blank, all available Resource Groups will be iterated. If supplied, only App Service Plans within the specified Resource Group will be iterated.
-automationConnName  | The name of the "Run as" account. <Your Resource Group>/<Your Automation Account> > Account Settings > Run as accounts -> Azure Run As Account. This is the account the runbook will run-as.
+automationConnName  | The name of the "Run as" account. \<Your Resource Group\>/\<Your Automation Account\> > Account Settings > Run as accounts -> Azure Run As Account. This is the account the runbook will run-as.
 appServicePlanName  | If supplied, the runbook will only target this specific App Service Plan and ignore all others.
 
 ## Manually Executing Runbooks
