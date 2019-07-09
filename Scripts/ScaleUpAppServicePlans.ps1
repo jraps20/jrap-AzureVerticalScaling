@@ -46,8 +46,8 @@ function GetAutomationVariable{
         -ErrorAction SilentlyContinue
 }
 
-Write-Output "Getting Automation Run-As Account with name '$automationConnName'"
-$conn = Get-AutomationConnection -Name $automationConnName 
+Write-Output "Getting Automation Run-As Account 'AzureRunAsConnection'"
+$conn = Get-AutomationConnection -Name "AzureRunAsConnection"
 
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
 Write-Output "Connected with Run-As Account '$automationConnName'"
