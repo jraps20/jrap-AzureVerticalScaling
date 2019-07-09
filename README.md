@@ -1,5 +1,5 @@
 # jrap-AzureVerticalScaling
-This project contains a variety of runbooks to autoscale various resources vertically. It is not recommended to install this in a production environment. The primary targets for this repository are non-prod environments. For example, if you have your Staging or Dev infrastructure set up as a mirror to your production infrastructure, you're paying a premium price for an environment that does not have the same 100% up-time requirement.
+This project contains a variety of runbooks to autoscale various resources VERTICALLY. _It is not recommended to install this in a production environment. The primary targets for this repository are non-prod environments._ For example, if you have your Staging or Dev infrastructure set up as a mirror to your production infrastructure, you're paying a **premium price** for an environment that does not have the same 100% up-time requirement. By turning off resources during non-work hours you can realistically cut your Azure costs in half+.
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
