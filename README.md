@@ -98,15 +98,15 @@ If you are converting from a Production or Standard Tier to a free tier, some se
 
 The following settings must be set as defined below in order to convert to the Free tier:
 
-_AlwaysOn_
+***AlwaysOn***
 
 "Always on" must be set to `False`.
 
-_Use32BitWorkerProcess_
+***Use32BitWorkerProcess***
 
 "Use32BitWorkerProcess" must be set to `True`.
 
-_ClientCertEnabled_
+***ClientCertEnabled***
 
 "ClientCertEnabled" must be set to `False`.
 
