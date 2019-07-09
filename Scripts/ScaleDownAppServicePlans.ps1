@@ -192,7 +192,7 @@ foreach($rgName in $resourceGroupNames){
                     -appServicePlanName $aSPName `
                     -job $jobInfo `
                     -name "$webAppName.ClientCertEnabled" `
-                    -value $false
+                    -value $true
 
                 Write-Output "--- --- --- --- Modifying 'ClientCertEnabled''..."
 
