@@ -2,43 +2,25 @@ param (
 	[parameter(Mandatory = $false)]
     [string]$resourceGroupName,
 
-	[parameter(Mandatory = $false)]
-    [string]$automationConnName = "AzureRunAsConnection",
-	
     [Parameter(Mandatory=$false)] 
     [string] $appServicePlanName
 )
 
 function Custom-Get-AzAutomationAccount{
-    $acc = Get-AzAutomationAccount
 
-    if($acc.AutomationAccountName.Length -gt 1){
-        Write-Output "Found multiple Run-As Accounts. Resolving to current..."
+    $AutomationResource = Get-AzResource -ResourceType Microsoft.Automation/AutomationAccounts
 
-        for($i = 0; $i -lt $acc.AutomationAccountName.Length; $i++){
-            $contextAutomationAccountName = $acc.AutomationAccountName[$i] 
-            $contextResourceGroupname = $acc.ResourceGroupName[$i]
-
-            $scalingAccount = Get-AzAutomationVariable -Name "ScalingAccount" `
-                -AutomationAccountName $contextAutomationAccountName `
-                -ResourceGroupName $contextResourceGroupname `
-                -ErrorAction SilentlyContinue
-            
-            if($scalingAccount -ne $null){
-                if($scalingAccount.Value -eq $contextAutomationAccountName){
-                    $acc = Get-AzAutomationAccount -ResourceGroupName $contextResourceGroupname `
-                                -Name $contextAutomationAccountName
-
-                    Write-Output "Resolved Run-As Account to $contextAutomationAccountName"
-                    break
-                }
-            }
+    foreach ($Automation in $AutomationResource)
+    {
+        $Job = Get-AzAutomationJob -ResourceGroupName $Automation.ResourceGroupName -AutomationAccountName $Automation.Name -Id $PSPrivateMetadata.JobId.Guid -ErrorAction SilentlyContinue
+        if (!([string]::IsNullOrEmpty($Job)))
+        {
+            return $Job
         }
-
-        Write-Output "Finished resolving proper Run-As Account"
     }
 
-    return $acc
+    Write-Output "ERROR: Unable to find current Automation Account"
+    exit
 }
 
 function GetAutomationVariable{
@@ -50,7 +32,7 @@ function GetAutomationVariable{
         [string] $appServicePlanName,
 
         [Parameter(Mandatory=$true)] 
-        [object] $automationAccount,
+        [object] $job,
 
         [Parameter(Mandatory=$true)] 
         [string] $name
@@ -59,17 +41,22 @@ function GetAutomationVariable{
     Write-Output "--- --- --- --- --- Getting Automation Variable '$targetResourceGroupname.$appServicePlanName.$name'..."
 
     return Get-AzAutomationVariable -Name "$targetResourceGroupname.$appServicePlanName.$name" `
-        -AutomationAccountName $automationAccount.AutomationAccountName `
-        -ResourceGroupName $automationAccount.ResourceGroupName `
+        -AutomationAccountName $job.AutomationAccountName `
+        -ResourceGroupName $job.ResourceGroupName `
         -ErrorAction SilentlyContinue
 }
 
 Write-Output "Getting Automation Run-As Account with name '$automationConnName'"
 $conn = Get-AutomationConnection -Name $automationConnName 
+
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
 Write-Output "Connected with Run-As Account '$automationConnName'"
 
-$account = Custom-Get-AzAutomationAccount
+$jobInfo = Custom-Get-AzAutomationAccount
+Write-Output "Automation Account Name: "
+Write-Output $jobInfo.AutomationAccountName
+Write-Output "Automation Resource Group: "
+Write-Output $jobInfo.ResourceGroupName
 
 $resourceGroupNames = @()
 
@@ -116,17 +103,17 @@ foreach($rgName in $resourceGroupNames){
 
         $skuName = GetAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Name"
 
         $skuTier = GetAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Tier"
 
         $skuSize = GetAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Size"
 
         Write-Output "--- --- --- --- Finished getting Automation Variables"
@@ -156,7 +143,7 @@ foreach($rgName in $resourceGroupNames){
             
             $alwaysOnVariable = GetAutomationVariable -targetResourceGroupname $rgName `
                 -appServicePlanName $aSPName `
-                -automationAccount $account `
+                -job $jobInfo `
                 -name "$webAppName.AlwaysOn"
             
             if($alwaysOnVariable -ne $null){

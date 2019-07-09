@@ -59,7 +59,6 @@ _If you set the ScaleAppServicePlansDown to run every M-F at 5pm, you should set
 Parameter  | Usage
 ------------- | -------------
 resourceGroupName  | If blank, all available Resource Groups will be iterated. If supplied, only App Service Plans within the specified Resource Group will be iterated.
-automationConnName  | The name of the "Run as" account. \<Your Resource Group\>/\<Your Automation Account\> > Account Settings > Run as accounts -> Azure Run As Account. This is the account the runbook will run-as.
 appServicePlanName  | If supplied, the runbook will only target this specific App Service Plan and ignore all others.
 
 ## Manually Executing Runbooks
@@ -112,6 +111,5 @@ The one-click deployment will install the following resources. You can view the 
       - Az.Automation 
       - Az.Sql 
       - Az.Monitor 
-   - Variables
-      - ScalingAccount: <Automation Account Name> (this is critical if you have more than one Automation Account)
+
 

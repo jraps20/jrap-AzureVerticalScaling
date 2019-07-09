@@ -2,43 +2,25 @@ param (
 	[parameter(Mandatory = $false)]
     [string]$resourceGroupName,
 
-	[parameter(Mandatory = $false)]
-    [string]$automationConnName = "AzureRunAsConnection",
-	
     [Parameter(Mandatory=$false)] 
     [string] $appServicePlanName
 )
 
 function Custom-Get-AzAutomationAccount{
-    $acc = Get-AzAutomationAccount
 
-    if($acc.AutomationAccountName.Length -gt 1){
-        Write-Output "Found multiple Run-As Accounts. Resolving to current..."
+    $AutomationResource = Get-AzResource -ResourceType Microsoft.Automation/AutomationAccounts
 
-        for($i = 0; $i -lt $acc.AutomationAccountName.Length; $i++){
-            $contextAutomationAccountName = $acc.AutomationAccountName[$i] 
-            $contextResourceGroupname = $acc.ResourceGroupName[$i]
-
-            $scalingAccount = Get-AzAutomationVariable -Name "ScalingAccount" `
-                -AutomationAccountName $contextAutomationAccountName `
-                -ResourceGroupName $contextResourceGroupname `
-                -ErrorAction SilentlyContinue
-            
-            if($scalingAccount -ne $null){
-                if($scalingAccount.Value -eq $contextAutomationAccountName){
-                    $acc = Get-AzAutomationAccount -ResourceGroupName $contextResourceGroupname `
-                                -Name $contextAutomationAccountName
-
-                    Write-Output "Resolved Run-As Account to $contextAutomationAccountName"
-                    break
-                }
-            }
+    foreach ($Automation in $AutomationResource)
+    {
+        $Job = Get-AzAutomationJob -ResourceGroupName $Automation.ResourceGroupName -AutomationAccountName $Automation.Name -Id $PSPrivateMetadata.JobId.Guid -ErrorAction SilentlyContinue
+        if (!([string]::IsNullOrEmpty($Job)))
+        {
+            return $Job
         }
-
-        Write-Output "Finished resolving proper Run-As Account"
     }
 
-    return $acc
+    Write-Output "ERROR: Unable to find current Automation Account"
+    exit
 }
 
 function CreateIfNotExistsAutomationVariable{
@@ -50,7 +32,7 @@ function CreateIfNotExistsAutomationVariable{
         [string] $appServicePlanName,
 
         [Parameter(Mandatory=$true)] 
-        [object] $automationAccount,
+        [object] $job,
 
         [Parameter(Mandatory=$true)] 
         [string] $name,
@@ -59,20 +41,17 @@ function CreateIfNotExistsAutomationVariable{
         [object] $value
     )
 
-    $automationAccountName = $automationAccount.AutomationAccountName
-    $automationResourceGroupName = $automationAccount.ResourceGroupName
-
     $variable = Get-AzAutomationVariable -Name "$targetResourceGroupname.$appServicePlanName.$name" `
-        -AutomationAccountName $automationAccountName `
-        -ResourceGroupName $automationResourceGroupName `
+        -AutomationAccountName $job.AutomationAccountName `
+        -ResourceGroupName $job.ResourceGroupName `
         -ErrorAction SilentlyContinue
 
     if($variable -eq $null){
         Write-Output "--- --- --- --- --- Creating new variable '$targetResourceGroupname.$appServicePlanName.$name' with value '$value'..."
 
         New-AzAutomationVariable -Name "$targetResourceGroupname.$appServicePlanName.$name" `
-            -AutomationAccountName $automationAccountName `
-            -ResourceGroupName $automationResourceGroupName `
+            -AutomationAccountName $job.AutomationAccountName `
+            -ResourceGroupName $job.ResourceGroupName `
             -Value $value `
             -Encrypted $false `
             | out-null
@@ -84,13 +63,17 @@ function CreateIfNotExistsAutomationVariable{
     }
 }
 
-Write-Output "Getting Automation Run-As Account with name '$automationConnName'"
-$conn = Get-AutomationConnection -Name $automationConnName
+Write-Output "Getting Automation Run-As Account 'AzureRunAsConnection'"
+$conn = Get-AutomationConnection -Name "AzureRunAsConnection"
 
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
-Write-Output "Connected with Run-As Account '$automationConnName'"
+Write-Output "Connected with Run-As Account 'AzureRunAsConnection'"
 
-$account = Custom-Get-AzAutomationAccount
+$jobInfo = Custom-Get-AzAutomationAccount
+Write-Output "Automation Account Name: "
+Write-Output $jobInfo.AutomationAccountName
+Write-Output "Automation Resource Group: "
+Write-Output $jobInfo.ResourceGroupName
 
 $resourceGroupNames = @()
 
@@ -137,19 +120,19 @@ foreach($rgName in $resourceGroupNames){
 
         CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Name" `
             -value $currentAppServicePlan.Sku.Name
 
         CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Tier" `
             -value $currentAppServicePlan.Sku.Tier
 
         CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
-            -automationAccount $account `
+            -job $jobInfo `
             -name "Sku.Size" `
             -value $currentAppServicePlan.Sku.Size
 
@@ -169,7 +152,7 @@ foreach($rgName in $resourceGroupNames){
 
                 CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
                     -appServicePlanName $aSPName `
-                    -automationAccount $account `
+                    -job $jobInfo `
                     -name "$webAppName.AlwaysOn" `
                     -value $true
 

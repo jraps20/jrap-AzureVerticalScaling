@@ -155,19 +155,6 @@
                             "version": "1.6.0"
                         }
                     }
-                },
-                {
-                    "type": "variables",
-                    "apiVersion": "2015-10-31",
-                    "name": "ScalingAccount",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
-                    ],
-                    "properties": {
-                        "value": "[concat('\"', parameters('automationAccountName'), '\"')]",
-                        "description": "DO NOT DELETE, THIS TELLS AUTOMATION WHICH ACCOUNT TO USE",
-                        "isEncrypted": false
-                    }
                 }
             ]
         }
