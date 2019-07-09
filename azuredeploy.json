@@ -62,6 +62,25 @@
                     }
                 },
                 {
+                    "type": "runbooks",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "Utility-DeleteAllVariables",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": "false",
+                        "logVerbose": "false",
+                        "description": "This runbook is included to assist with testing. It removes all variables from the current Automation Account.",
+                        "publishContentLink": {
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/master/Scripts/Utility-DeleteAllVariables.ps1",
+                            "version": "1.0.0.0"
+                        }
+                    }
+                },
+                {
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Accounts",

@@ -120,6 +120,7 @@ The one-click deployment will install the following resources. You can view the 
    - Run books
       - Scale App Service Plans Down
 	  - Scale App Service Plans Up
+	  - Utility-DeleteAllVariables (included to assist with testing, it removes all variables in the Automation Account, **use with care**)
    - Modules (dependencies on scripts)
       - Az.Accounts 
       - Az.Resources 
