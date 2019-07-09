@@ -116,7 +116,7 @@ foreach($rgName in $resourceGroupNames){
 
         $currentAppServicePlan = Get-AzAppServicePlan -ResourceGroupName "$rgName" -Name $aSPName
         
-        Write-Output "--- --- --- --- Saving current state to Automation Variables..."
+        Write-Output "--- --- --- --- Saving current App Service Plan state to Automation Variables..."
 
         CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
             -appServicePlanName $aSPName `
@@ -136,19 +136,23 @@ foreach($rgName in $resourceGroupNames){
             -name "Sku.Size" `
             -value $currentAppServicePlan.Sku.Size
 
-        Write-Output "--- --- --- --- Finished saving current state to Automation Variables"
+        Write-Output "--- --- --- --- Finished saving current App Service Plan state to Automation Variables"
 
-        Write-Output "--- --- --- Checking for App Services set to 'Always On'..."
+        Write-Output "--- --- --- Checking for App Services with Tier-specific settings..."
 
         $webApps = Get-AzWebApp -AppServicePlan $currentAppServicePlan
 
         foreach($webApp in $webApps){
             # need to re-get web app to get more verbose object
             $webApp = Get-AzWebApp -ResourceGroupName $rgName -Name $webApp.Name
+            
+            $webAppName = $webApp.Name
+            Write-Output "--- --- --- --- Checking '$webAppName'..."
+            $foundSetting = $false
 
             if($webApp.SiteConfig.AlwaysOn){
-                $webAppName = $webApp.Name
-                Write-Output "--- --- --- --- Found App Service '$webAppName' with 'AlwaysOn' set to true"
+                $foundSetting = $true
+                Write-Output "--- --- --- --- Found 'AlwaysOn' setting..."
 
                 CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
                     -appServicePlanName $aSPName `
@@ -156,18 +160,58 @@ foreach($rgName in $resourceGroupNames){
                     -name "$webAppName.AlwaysOn" `
                     -value $true
 
-                $modifiedWebApp = $webApp
+                Write-Output "--- --- --- --- Modifying 'AlwaysOn'..."
 
-                Write-Output "--- --- --- --- Modifiying App Service '$webAppName'..."
-
-                $modifiedWebApp.SiteConfig.AlwaysOn = $false
-                Set-AzWebApp -WebApp $modifiedWebApp | out-null
+                $webApp.SiteConfig.AlwaysOn = $false
                 
-                Write-Output "--- --- --- --- Finished modifiying App Service '$webAppName'"
+                Write-Output "--- --- --- --- Finished modifying 'AlwaysOn'"
+            }
+
+            if(!$webApp.SiteConfig.Use32BitWorkerProcess){
+                $foundSetting = $true
+                Write-Output "--- --- --- --- Found 'Use32BitWorkerProcess' setting..."
+
+                CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
+                    -appServicePlanName $aSPName `
+                    -job $jobInfo `
+                    -name "$webAppName.Use32BitWorkerProcess" `
+                    -value $false
+
+                Write-Output "--- --- --- --- Modifying 'Use32BitWorkerProcess''..."
+
+                $webApp.SiteConfig.Use32BitWorkerProcess = $true
+                
+                Write-Output "--- --- --- --- Finished modifying 'Use32BitWorkerProcess''"
+            }
+
+            if($webApp.ClientCertEnabled){
+                $foundSetting = $true
+                Write-Output "--- --- --- --- Found 'ClientCertEnabled' setting..."
+
+                CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
+                    -appServicePlanName $aSPName `
+                    -job $jobInfo `
+                    -name "$webAppName.ClientCertEnabled" `
+                    -value $false
+
+                Write-Output "--- --- --- --- Modifying 'ClientCertEnabled''..."
+
+                $webApp.ClientCertEnabled = $false
+                
+                Write-Output "--- --- --- --- Finished modifying 'ClientCertEnabled''"
+            }
+
+            if($foundSetting){
+                Write-Output "--- --- --- --- Saving modified App Service: '$webAppName'..."
+                Set-AzWebApp -WebApp $webApp | out-null
+                Write-Output "--- --- --- --- Finished saving modified App Service: '$webAppName'"
+            }
+            else{
+                Write-Output "--- --- --- --- Found zero Tier-specific settings to modify on '$webAppName'"
             }
         }
 
-        Write-Output "--- --- --- Finished checking for App Services set to 'Always On'"
+        Write-Output "--- --- --- Finished checking for App Services with Tier-specific settings"
 
         Write-Output "--- --- --- Converting '$aSPName' to Free Tier..."
         Set-AzAppServicePlan -ResourceGroupName "$rgName" -Name $aSPName -Tier "Free" | out-null

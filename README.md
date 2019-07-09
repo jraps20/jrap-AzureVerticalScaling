@@ -92,9 +92,25 @@ You may wish to manually execute a runbook to ensure it performs as expected.
 
 The vertical scaling of App Service Plans mirrors any manual steps that would be required to scale a resource up or down. During the scaling down process, all resources have their current Tier and Size saved to Automation Variables in the format: RESOURCEGROUPNAME.RESOURCENAME.\<PROPERTY\>. This allows the scaling up runbook to know what to set the resources back to once executed.
 
-If you are converting from a Production-tier to a free tier, you must disable the "Always on" setting. These runbooks account for this by iterating over all App Services within an App Service Plan and storing the previous "Always on" value if set to true. When the sites are re-scaled back up, they are properly set back to "Always on". 
+**Tier-Specific Settings**
 
-_Note: There may be additional settings that do not descend properly to a Free tier. If so, the same strategy may be used to store the value, then on upscaling, retrieve the value and set it back to its original value._
+If you are converting from a Production or Standard Tier to a free tier, some settings need to be saved and modified before converting. These runbooks account for these unique settings by iterating over all App Services within an App Service Plan and storing the previous value. When the sites are re-scaled back up, they are properly set back to their previously defined values. 
+
+The following settings must be set as defined below in order to convert to the Free tier:
+
+_AlwaysOn_
+
+"Always on" must be set to `False`.
+
+_Use32BitWorkerProcess_
+
+"Use32BitWorkerProcess" must be set to `True`.
+
+_ClientCertEnabled_
+
+"ClientCertEnabled" must be set to `False`.
+
+_Note: There may be additional settings that do not descend properly to a Free tier. If so, the same strategy may be used to store the value, then on upscaling, retrieve the value and set it back to its original value. If any of these settings cannot be applied confidently to your solution, you may need to modify the scripts._
 
 # What is deployed
 
