@@ -50,7 +50,7 @@ Write-Output "Getting Automation Run-As Account 'AzureRunAsConnection'"
 $conn = Get-AutomationConnection -Name "AzureRunAsConnection"
 
 Connect-AzAccount -ServicePrincipal -Tenant $conn.TenantID -ApplicationId $conn.ApplicationID -CertificateThumbprint $conn.CertificateThumbprint | out-null
-Write-Output "Connected with Run-As Account '$automationConnName'"
+Write-Output "Connected with Run-As Account 'AzureRunAsConnection'"
 
 $jobInfo = Custom-Get-AzAutomationAccount
 Write-Output "Automation Account Name: "
