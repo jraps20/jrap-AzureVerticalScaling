@@ -92,7 +92,7 @@ You may wish to manually execute a runbook to ensure it performs as expected.
 
 The vertical scaling of App Service Plans mirrors any manual steps that would be required to scale a resource up or down. During the scaling down process, all resources have their current Tier and Size saved to Automation Variables in the format: RESOURCEGROUPNAME.RESOURCENAME.\<PROPERTY\>. This allows the scaling up runbook to know what to set the resources back to once executed.
 
-**Tier-Specific Settings**
+**Tier-Specific Settings for Individual App Services**
 
 If you are converting from a Production or Standard Tier to a free tier, some settings need to be saved and modified before converting. These runbooks account for these unique settings by iterating over all App Services within an App Service Plan and storing the previous value. When the sites are re-scaled back up, they are properly set back to their previously defined values. 
 
