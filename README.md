@@ -20,7 +20,7 @@ Next, add a Run As account...
 2. Select Account Settings > Run as accounts from the left hand navigation
 3. Select "Create" on the "Azure Run As Account"
 4. Create
-5. The name will be "AzureRunAsConnection". (This value is defaulted in the parameters.)
+5. The name will be "AzureRunAsConnection". (This value is defaulted in the scripts.)
 
 More information regarding Run As accounts: https://docs.microsoft.com/en-us/azure/automation/manage-runas-account
 
