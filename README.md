@@ -59,7 +59,7 @@ _If you set the ScaleAppServicePlansDown to run every M-F at 5pm, you should set
 Parameter  | Usage
 ------------- | -------------
 resourceGroupName  | If blank, all available Resource Groups will be iterated. If supplied, only App Service Plans within the specified Resource Group will be iterated.
-appServicePlanName  | If supplied, the runbook will only target this specific App Service Plan and ignore all others.
+appServicePlanName  | If blank, all available App Service Plans in the Resource Group(s). If supplied, the runbook will only target this specific App Service Plan and ignore all others.
 
 ## Manually Executing Runbooks
 
