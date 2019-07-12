@@ -1,3 +1,8 @@
+param (
+	[parameter(Mandatory = $false)]
+    [string]$searchString
+)
+
 function Custom-Get-AzAutomationAccount{
 
     $AutomationResource = Get-AzResource -ResourceType Microsoft.Automation/AutomationAccounts
@@ -51,6 +56,12 @@ Write-Output "Automation Resource Group: "
 Write-Output $jobInfo.ResourceGroupName
 
 $variables = Get-AzAutomationVariable -AutomationAccountName $jobInfo.AutomationAccountName -ResourceGroupName $jobInfo.ResourceGroupName
+
+if($searchString -ne $null){
+    Write-Output "Finding only variables with name that contain: $searchString"
+    $variables = $variables | Where-Object {$_.Name.Contains($searchString)}
+}
+
 Write-Output "variables"
 $varLength = $variables.$varLength
 
