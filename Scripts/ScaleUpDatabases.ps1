@@ -142,10 +142,17 @@ foreach($rgName in $resourceGroupNames){
                 -job $jobInfo `
                 -name "CurrentServiceObjectiveName" `
 
+            $maxSizeBytes = GetAutomationVariable -targetResourceGroupname $rgName `
+                -dbServerName $dbServerName `
+                -dbName $dbName `
+                -job $jobInfo `
+                -name "MaxSizeBytes" `
+
             Write-Output "--- --- --- --- Finished getting Automation Variables"
             
             $editionValue = $edition.Value
             $serviceObjectiveNameValue = $serviceObjectiveName.Value
+            $maxSizeBytesValue = $maxSizeBytes.Value
 
             Write-Output "--- --- --- --- Converting '$dbName' to '$editionValue' Edition at Size '$serviceObjectiveNameValue'..."
 
@@ -153,6 +160,7 @@ foreach($rgName in $resourceGroupNames){
                 -DatabaseName $dbName `
                 -ServerName $dbServerName `
                 -Edition $editionValue `
+                -MaxSizeBytes $maxSizeBytesValue `
                 -RequestedServiceObjectiveName $serviceObjectiveNameValue `
                 | out-null
             

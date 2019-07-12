@@ -155,6 +155,13 @@ foreach($rgName in $resourceGroupNames){
                 -dbServerName $dbServerName `
                 -dbName $dbName `
                 -job $jobInfo `
+                -name "MaxSizeBytes" `
+                -value $database.MaxSizeBytes
+
+            CreateIfNotExistsAutomationVariable -targetResourceGroupname $rgName `
+                -dbServerName $dbServerName `
+                -dbName $dbName `
+                -job $jobInfo `
                 -name "Edition" `
                 -value $database.Edition
 
@@ -189,7 +196,7 @@ foreach($rgName in $resourceGroupNames){
 
                 Write-Output "--- --- --- --- Finished converting '$dbName' Database to Basic Edition"
             }
-            #Standard, < 250GB
+            #Standard S0, < 250GB
             elseif($currentAllocation -lt 26843545600000){
                 Write-Output "--- --- --- --- Converting '$dbName' Database to Standard Edition (S0)..."
 
