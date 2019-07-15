@@ -184,7 +184,7 @@ foreach($rgName in $resourceGroupNames){
             # detects current allocation size in bytes
             $currentAllocation = $allocationMetric.Data.Maximum 
 
-            Write-Output "--- --- --- Current allocation in bytes: $currentAllocation"
+            Write-Output "--- --- --- --- Current allocation in bytes: $currentAllocation"
 
             # Basic, < 2GB
             if($currentAllocation -lt 2147483648){
