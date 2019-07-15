@@ -37,8 +37,8 @@
                         "logVerbose": "false",
                         "description": "Scale down App Service Plans by subscription, by resource group or by specific App Service Plan. Scales down to FREE tier.",
                         "publishContentLink": {
-                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/master/Scripts/ScaleDownAppServicePlans.ps1",
-                            "version": "1.0.0.0"
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/task/ScaleDatabasesScheduled/Scripts/Scheduled/AppServicePlans/ScaleDownAppServicePlans.ps1",
+                            "version": "1.0.1.0"
                         }
                     }
                 },
@@ -56,8 +56,8 @@
                         "logVerbose": "false",
                         "description": "Scale up App Service Plans by subscription, by resource group or by specific App Service Plan. Scales up to original tier.",
                         "publishContentLink": {
-                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/master/Scripts/ScaleUpAppServicePlans.ps1",
-                            "version": "1.0.0.0"
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/task/ScaleDatabasesScheduled/Scripts/Scheduled/AppServicePlans/ScaleUpAppServicePlans.ps1",
+                            "version": "1.0.1.0"
                         }
                     }
                 },
@@ -75,8 +75,46 @@
                         "logVerbose": "false",
                         "description": "This runbook is included to assist with testing. It removes all variables from the current Automation Account.",
                         "publishContentLink": {
-                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/master/Scripts/Utility-DeleteAllVariables.ps1",
-                            "version": "1.0.0.0"
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/task/ScaleDatabasesScheduled/Scripts/Utility-DeleteAllVariables.ps1",
+                            "version": "1.0.1.0"
+                        }
+                    }
+                },
+                {
+                    "type": "runbooks",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "ScaleDatabasesUp",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": "false",
+                        "logVerbose": "false",
+                        "description": "Scale up Sql Databases by subscription, by Sql Server or by specific Sql Database. Scales up to original tier.",
+                        "publishContentLink": {
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/task/ScaleDatabasesScheduled/Scripts/Scheduled/SqlDatabases/ScaleUpDatabases.ps1",
+                            "version": "1.0.1.0"
+                        }
+                    }
+                },
+                {
+                    "type": "runbooks",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "ScaleDatabasesDown",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": "false",
+                        "logVerbose": "false",
+                        "description": "Scale down Sql Databases by subscription, by Sql Server or by specific Sql Database. Scales down to Basic tier.",
+                        "publishContentLink": {
+                            "uri": "https://raw.githubusercontent.com/jraps20/jrap-AzureVerticalScaling/task/ScaleDatabasesScheduled/Scripts/Scheduled/SqlDatabases/ScaleDownDatabases.ps1",
+                            "version": "1.0.1.0"
                         }
                     }
                 },
