@@ -174,19 +174,19 @@ foreach($rgName in $resourceGroupNames){
 
             Write-Output "--- --- --- --- Finished saving current Database state to Automation Variables"
 
-            # AggregationType 3 = 'Maximum'
-            # 00:01:00 to get most recent allocation size
-            # automatic allocatin of 30% current consumed size
+            # automatic allocation = of 30% current consumed size
+            # get single value for past hour
             $allocationMetric = Get-AzMetric -ResourceID $database.ResourceId `
                 -MetricName allocated_data_storage `
-                -AggregationType 3
+                -AggregationType Maximum `
+                -TimeGrain (New-TimeSpan -Hours 1)
 
             # detects current allocation size in bytes
-            $currentAllocation = $allocationMetric.Data[0].Minimum 
+            $currentAllocation = $allocationMetric.Data.Maximum 
 
             # Basic, < 2GB
             if($currentAllocation -lt 2147483648){
-                Write-Output "--- --- --- --- Converting '$dbName' Database to Basic Edition..."
+                Write-Output "--- --- --- --- Allocation less than 2GB, converting '$dbName' Database to Basic Edition..."
 
                 Set-AzSqlDatabase -ResourceGroupName $rgName `
                 -DatabaseName $dbName `
@@ -197,8 +197,8 @@ foreach($rgName in $resourceGroupNames){
                 Write-Output "--- --- --- --- Finished converting '$dbName' Database to Basic Edition"
             }
             #Standard S0, < 250GB
-            elseif($currentAllocation -lt 26843545600000){
-                Write-Output "--- --- --- --- Converting '$dbName' Database to Standard Edition (S0)..."
+            elseif($currentAllocation -lt 268435456000){
+                Write-Output "--- --- --- --- Allocation less than 250GB, converting '$dbName' Database to Standard Edition (S0)..."
 
                 Set-AzSqlDatabase -ResourceGroupName $rgName `
                 -DatabaseName $dbName `
@@ -209,8 +209,21 @@ foreach($rgName in $resourceGroupNames){
 
                 Write-Output "--- --- --- --- Finished converting '$dbName' Database to Standard Edition (S0)"
             }
+            #Premium P1, < 1TB
+            elseif($currentAllocation -lt 1099511627776){
+                Write-Output "--- --- --- --- Allocation less than 1TB, converting '$dbName' Database to Premium Edition (P1)..."
+
+                Set-AzSqlDatabase -ResourceGroupName $rgName `
+                -DatabaseName $dbName `
+                -ServerName $dbServerName `
+                -Edition "Premium" `
+                -RequestedServiceObjectiveName "P1" `
+                | out-null
+
+                Write-Output "--- --- --- --- Finished converting '$dbName' Database to Premium Edition (P1)"
+            }
             else{
-                Write-Output "--- --- --- --- No action performed on '$dbName' Database"
+                Write-Output "--- --- --- --- No action performed on '$dbName' Database as allocation is too big, ($currentAllocation) bytes"
             }
 
             Write-Output "--- --- --- Finished processing '$dbName' Database"
