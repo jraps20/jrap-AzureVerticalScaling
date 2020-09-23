@@ -5,10 +5,6 @@
         "automationAccountName": {
             "type": "string",
             "minLength": 1
-        },
-        "region": {
-            "type": "string",
-            "defaultValue": "East US 2"
         }
     },
     "resources": [
