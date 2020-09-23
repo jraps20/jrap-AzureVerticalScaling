@@ -1,7 +1,7 @@
 # jrap-AzureVerticalScaling
 This project contains a variety of runbooks to autoscale various resources VERTICALLY. _It is not recommended to install this in a production environment. The primary targets for this repository are non-prod environments._ For example, if you have your Staging or Dev infrastructure set up as a mirror to your production infrastructure, you're paying a **premium price** for an environment that does not have the same 100% up-time requirement. By turning off resources during non-work hours you can realistically cut your Azure costs in half+.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjraps20%2Fjrap-AzureVerticalScaling%2Fmaster%2Fazuredeploy.json)
 
 ## Getting Started
 Use the ***Deploy to Azure*** button above to quickly deploy these scripts to your Azure Subscription. The deployment will take a few minutes. The longest piece is the import of dependent Azure Az modules in the runbook gallery. The deployment will also automatically add several "Tutorial" runbooks, even though they are excluded from the ARM template. Feel free to delete them post-deployment (AzureAutomationTutorial, AzureAutomationTutorialPython2, AzureAutomationTutorialScript).
