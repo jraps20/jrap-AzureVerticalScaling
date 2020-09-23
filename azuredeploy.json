@@ -12,7 +12,7 @@
             "apiVersion": "2015-01-01-preview",
             "name": "[parameters('automationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
-            "location": "[parameters('resourceGroupLocation')]",
+            "location": "{resourceGroupLocation}",
             "properties": {
                 "sku": {
                     "name": "Basic"
@@ -23,7 +23,7 @@
                     "type": "runbooks",
                     "apiVersion": "2015-01-01-preview",
                     "name": "ScaleAppServicePlansDown",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
                     ],
@@ -42,7 +42,7 @@
                     "type": "runbooks",
                     "apiVersion": "2015-01-01-preview",
                     "name": "ScaleAppServicePlansUp",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
                     ],
@@ -61,7 +61,7 @@
                     "type": "runbooks",
                     "apiVersion": "2015-01-01-preview",
                     "name": "Utility-DeleteAllVariables",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
                     ],
@@ -80,7 +80,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Accounts",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
                     ],
@@ -95,7 +95,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Monitor",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/Az.Accounts')]"
@@ -111,7 +111,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Websites",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/Az.Accounts')]"
@@ -127,7 +127,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Automation",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/Az.Accounts')]"
@@ -143,7 +143,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Sql",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/Az.Accounts')]"
@@ -159,7 +159,7 @@
                     "type": "modules",
                     "apiVersion": "2015-10-31",
                     "name": "Az.Resources",
-                    "location": "[parameters('resourceGroupLocation')]",
+                    "location": "{resourceGroupLocation}",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/Az.Accounts')]"
